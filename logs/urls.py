@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import handle_payment
+from .views import view_payment
 urlpatterns = [
-    path('payment/', handle_payment)
+    path('payment/', view_payment)
 ]

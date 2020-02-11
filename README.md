@@ -70,19 +70,77 @@ Quit the server with CONTROL-C.
 ```
 
 ## Requesting API
-**Once Django is ready to serve, you can start making a request**
+**Once Django is ready to serve, you can start making requests**
 
-### POST http://localhost:8000/api/payment/
-* You can copy the cURL command below for simple testing
+Based on the data given, the middleware application will make requests to Stripe and return the response accordingly. 
 
-`curl -d '{"cc_num":"4111111111111111", "cvv":"123", "exp_date":"0221", "trans_id":"123345123"}' -H "Content-Type: application/json" -X POST http://localhost:8000/api/payment/`
+### Sending payment method to Stripe
 
-* If you want to modify the JSON data and test vulnerability, you can use [Postman API](https://www.postman.com/)
+#### Request setup 
+> Target URL: `http://localhost:8000/api/payment/`
+> 
+> Request Method: `POST`
+> 
+> Data Type: JSON
+> 
+> Data Key/Value:
+> 
+> ```
+> {
+>     "cc_num": {15 to 19 digit credit card number string},
+>     "cvv": {3 to 4 digit string},
+>     "exp_date": {4 digit string containing MO(2digit)/YR(2digit)},
+>     "trans_id": {valid transaction ID}
+> }
+> ```
+
+#### Response Sample(Success)
+> Upon valid request, for the sake of simplicity and security, the successful transaction will return as below:
+> 
+> ``` 
+> HTTP STATUS 200 OK
+>{
+>    "transaction": "success",
+>    "object": "payment_method",
+>    "type": "card"
+>}
+> ```
+
+#### Response Sample(Field Validation Error)
+> If all or any required data is missing, Django will raise an error with related field as below:
+> 
+> ```
+> {
+>    "{key name}": [
+>        "This field is required."
+>    ]
+>}
+> ```
+
+#### Response Sample(Stripe Return Error)
+> If the data sent from IVR fails the validation from Stripe, Django will relay the error message as below:
+> 
+> 
+> ```
+> HTTP STATUS 400 BAD REQUEST
+> {
+>    "error": "invalid_cvc"
+>}
+> ```
+
+#### cURL Sample
+> You can copy the cURL command below for simple testing
+> `curl -d '{"cc_num":"4111111111111111", "cvv":"123", "exp_date":"0221", "trans_id":"123345123"}' -H "Content-Type: application/json" -X POST http://localhost:8000/api/payment/`
+
+**For ease of testing, you can use [Postman API](https://www.postman.com/)**
 
 
 ## Behind The Architecture
 ### Capturing Request and Response data
-Custom Django [Middleware](https://docs.djangoproject.com/en/2.1/topics/http/middleware/) was created to capture all request and response data into MySQL database. Since django middleware is called before request goes in and after response goes out, it was possible to capture all requests and response logs.
+#### Django Middleware
+Custom Django [Middleware](https://docs.djangoproject.com/en/2.1/topics/http/middleware/) was created to capture all request and response data into MySQL database. Since django middleware is called before request goes in and after response goes out, it was possible to capture all requests and response logs. 
+#### Detail Response from Stripe
+In this case we don't want to return IVR(client) all the response data from Stripe. However these data may come in use for troubleshooting. Therefore after capturing the detail response from Stripe, a simplified content is returned with an appropriate http status code.
 
 ### Database modeling 
 Saving as much as data from request and response was my number one concern since it could be used for troubleshooting. I decided to use NoSQL style field to our database to give more flexibility. Therefore [Django-MySql](https://django-mysql.readthedocs.io/en/latest/model_fields/json_field.html) is used to store JSONField. At the same time, it was important to distinguish certain fields for fast querying purpose. So common field such as response status code and request method(type) are separately stored.

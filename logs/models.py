@@ -16,5 +16,5 @@ class RequestLog(BaseLog):
 
 
 class ResponseLog(BaseLog):
-    request = models.OneToOneField('RequestLog', on_delete=models.CASCADE, related_name='responses')
+    request = models.ForeignKey('RequestLog', on_delete=models.CASCADE, related_name='responses')
     response_status = models.PositiveIntegerField()
