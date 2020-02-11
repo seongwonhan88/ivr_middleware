@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'logs',
     'stripe',
-    'django_extensions',
     'django_mysql',
     'celery'
 ]
