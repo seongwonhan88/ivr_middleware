@@ -155,6 +155,9 @@ Using Stripe requires certain format. IVR's request data was needed to be proper
 It was strictly forbidden to save credit card info to database. A masking function was created in middleware to make sure that the request log will only save the last 4 digits and mask the rest of the credit card info. 
 
 
+### Processing Stripe
+Stripe requires 
+
 ## Author
 
 * **Seongwon Han**
