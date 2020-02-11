@@ -161,6 +161,8 @@ In this case we don't want to return IVR(client) all the response data from Stri
 ### Database modeling 
 Saving as much as data from request and response was my number one concern since it could be used for troubleshooting. I decided to use NoSQL style field to our database to give more flexibility. Therefore [Django-MySql](https://django-mysql.readthedocs.io/en/latest/model_fields/json_field.html) is used to store JSONField. At the same time, it was important to distinguish certain fields for fast querying purpose. So common field such as response status code and request method(type) are separately stored.
 
+For troubleshooting purposes,  `RequestLog` has one-to-many relationship with `ResponseLog`. `ResponseLog` can trace back to which request information it relates to
+
 ### Exception handling 
 Server-side should never assume that the client will always request correctly. Therefore error handling on missing data, wrote data input, or even sending an empty data needed to be handled correctly. Using [Django-REST-Framework](https://www.django-rest-framework.org/api-guide/serializers/#serializers)'s serializer is used to validate the each data type without writing too much code for error handling. 
 
@@ -170,7 +172,8 @@ Using Stripe requires certain format. IVR's request data was needed to be proper
 ### Sensitive data masking 
 It was strictly forbidden to save credit card info to database. A masking function was created in middleware to make sure that the request log will only save the last 4 digits and mask the rest of the credit card info. 
 
-
+### Async process
+Async process is called for saving logs, so that logging does not become a bottleneck for any reason. 
 
 ## Author
 
