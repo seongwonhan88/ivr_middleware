@@ -16,6 +16,8 @@ If you don't have the listed items below, click the link and follow the instruct
 * Database - [MySQL](https://formulae.brew.sh/formula/mysql) 
 * Virtual Environment - [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv/blob/master/README.md) or [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html#via-pip)
 * Payment Service - [Stripe API Key](https://stripe.com/docs/development)
+* Async Processing - [Celery](http://www.celeryproject.org/)
+* Message Broker - [Redis](http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis)
 
 ### Environment Variables
 Ensure that the environment variables are properly set for your project. In your file system, make a new file `.bash_{your filename}` and include in your `.bashrc`. 
@@ -69,6 +71,20 @@ Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
 
+4) Fire up Celery
+ > - open a new terminal and jump to project directory(where `manage.py` exists)
+ > - command `celery -A ivr_payment  worker -l info` in your terminal
+ > - if you see something like below, celery is ready to listen
+ 
+ ```
+[2020-02-11 23:33:56,687: INFO/MainProcess] Connected to redis://localhost:6379/1
+[2020-02-11 23:33:56,697: INFO/MainProcess] mingle: searching for neighbors
+[2020-02-11 23:33:57,718: INFO/MainProcess] mingle: all alone
+[2020-02-11 23:33:57,733: WARNING/MainProcess] /usr/local/var/pyenv/versions/3.7.4/envs/ivr_env/lib/python3.7/site-packages/celery/fixups/django.py:203: UserWarning: Using settings.DEBUG leads to a memory leak, never use this setting in production environments!)
+[2020-02-11 23:33:57,733: INFO/MainProcess] celery@{Your PC} ready.
+ ```
+ 
+ 
 ## Requesting API
 **Once Django is ready to serve, you can start making requests**
 
@@ -148,17 +164,16 @@ Saving as much as data from request and response was my number one concern since
 ### Exception handling 
 Server-side should never assume that the client will always request correctly. Therefore error handling on missing data, wrote data input, or even sending an empty data needed to be handled correctly. Using [Django-REST-Framework](https://www.django-rest-framework.org/api-guide/serializers/#serializers)'s serializer is used to validate the each data type without writing too much code for error handling. 
 
-### Data Formatting
+### Data formatting
 Using Stripe requires certain format. IVR's request data was needed to be properly formatted in order to send request using Stripe. format handler function was made to make sure the IVR request data is adjusted.
 
-### Sensitive Data Masking 
+### Sensitive data masking 
 It was strictly forbidden to save credit card info to database. A masking function was created in middleware to make sure that the request log will only save the last 4 digits and mask the rest of the credit card info. 
 
 
-### Processing Stripe
-Stripe requires 
 
 ## Author
 
-* **Seongwon Han**
-* If you have any questions please send me an email to *seongwonhan88@gmail.com*
+**Seongwon Han**
+
+If you have any questions please send me an email to *seongwonhan88@gmail.com*

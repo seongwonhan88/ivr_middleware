@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'stripe',
     'django_extensions',
     'django_mysql',
+    'celery'
 ]
 
 MIDDLEWARE = [
@@ -89,6 +90,18 @@ DATABASES = {
         'HOST': os.environ.get('IVR_HOST', None),
     }
 }
+
+# REDIS
+REDIS_HOST = host = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 
 # Password validation
